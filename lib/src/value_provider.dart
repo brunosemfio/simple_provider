@@ -1,35 +1,7 @@
 import 'package:flutter/material.dart';
 
-class ValueProvider<T> extends StatelessWidget {
+class ValueProvider<T> extends InheritedWidget {
   const ValueProvider({
-    super.key,
-    required this.value,
-    required this.child,
-  });
-
-  final T value;
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return _ValueScope<T>(
-      value: value,
-      child: child,
-    );
-  }
-
-  static T of<T>(BuildContext context, {bool listen = false}) {
-    final scope = listen
-        ? context.dependOnInheritedWidgetOfExactType<_ValueScope<T>>()
-        : context.findAncestorWidgetOfExactType<_ValueScope<T>>();
-
-    return scope!.value;
-  }
-}
-
-class _ValueScope<T> extends InheritedWidget {
-  const _ValueScope({
     super.key,
     required this.value,
     required super.child,
@@ -37,8 +9,16 @@ class _ValueScope<T> extends InheritedWidget {
 
   final T value;
 
+  static T of<T>(BuildContext context, {bool listen = false}) {
+    final scope = listen
+        ? context.dependOnInheritedWidgetOfExactType<ValueProvider<T>>()
+        : context.findAncestorWidgetOfExactType<ValueProvider<T>>();
+
+    return scope!.value;
+  }
+
   @override
-  bool updateShouldNotify(_ValueScope<T> oldWidget) {
+  bool updateShouldNotify(ValueProvider<T> oldWidget) {
     return oldWidget.value != value;
   }
 }
