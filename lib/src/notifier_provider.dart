@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 class NotifierProvider<T extends ChangeNotifier> extends StatefulWidget {
   const NotifierProvider({
     super.key,
-    required this.value,
+    required this.create,
     required this.child,
-    this.autoDispose = false,
+    this.onDispose,
   });
 
-  final T value;
+  final T Function() create;
 
   final Widget child;
 
-  final bool autoDispose;
+  final void Function(T)? onDispose;
 
   @override
   State<NotifierProvider<T>> createState() => _NotifierProviderState<T>();
@@ -31,17 +31,19 @@ class NotifierProvider<T extends ChangeNotifier> extends StatefulWidget {
 
 class _NotifierProviderState<T extends ChangeNotifier>
     extends State<NotifierProvider<T>> {
+  T? _notifier;
+
   @override
   Widget build(BuildContext context) {
     return _NotifierScope<T>(
-      notifier: widget.value,
+      notifier: _notifier ??= widget.create(),
       child: widget.child,
     );
   }
 
   @override
   void dispose() {
-    if (widget.autoDispose) widget.value.dispose();
+    if (_notifier != null) widget.onDispose?.call(_notifier!);
     super.dispose();
   }
 }
