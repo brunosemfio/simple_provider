@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-class Provider<T> extends StatefulWidget {
-  const Provider({
+class SimpleProvider<T> extends StatefulWidget {
+  const SimpleProvider({
     super.key,
     this.create,
     this.onDispose,
     required this.child,
   }) : value = null;
 
-  const Provider.value({
+  const SimpleProvider.value({
     super.key,
     this.value,
     required this.child,
@@ -24,7 +24,7 @@ class Provider<T> extends StatefulWidget {
   final Widget child;
 
   @override
-  State<Provider> createState() => _ProviderState();
+  State<SimpleProvider<T>> createState() => _SimpleProviderState<T>();
 
   static T of<T>(BuildContext context, {bool listen = false}) {
     final scope = listen
@@ -35,13 +35,13 @@ class Provider<T> extends StatefulWidget {
   }
 }
 
-class _ProviderState<T> extends State<Provider<T>> {
+class _SimpleProviderState<T> extends State<SimpleProvider<T>> {
   T? value;
 
   @override
   Widget build(BuildContext context) {
-    return _ProviderScope(
-      value: value ??= widget.value ?? widget.create?.call(),
+    return _ProviderScope<T>(
+      value: value ??= widget.value ?? widget.create!(),
       child: widget.child,
     );
   }
