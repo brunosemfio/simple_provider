@@ -45,6 +45,12 @@ class _SimpleProviderState<T> extends State<SimpleProvider<T>> {
       child: widget.child,
     );
   }
+
+  @override
+  void dispose() {
+    if (value != null) widget.onDispose?.call(value as T);
+    super.dispose();
+  }
 }
 
 class _ProviderScope<T> extends InheritedWidget {
