@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 class SimpleProvider<T> extends StatefulWidget {
   const SimpleProvider({
     super.key,
-    this.create,
-    this.onDispose,
+    required this.create,
     required this.child,
+    this.onDispose,
   }) : value = null;
 
   const SimpleProvider.value({
     super.key,
-    this.value,
+    required this.value,
     required this.child,
   })  : create = null,
         onDispose = null;
@@ -26,7 +26,7 @@ class SimpleProvider<T> extends StatefulWidget {
   @override
   State<SimpleProvider<T>> createState() => _SimpleProviderState<T>();
 
-  static T of<T>(BuildContext context, {bool listen = false}) {
+  static T of<T>(BuildContext context, {bool listen = true}) {
     final scope = listen
         ? context.dependOnInheritedWidgetOfExactType<_ProviderScope<T>>()
         : context.findAncestorWidgetOfExactType<_ProviderScope<T>>();
@@ -36,19 +36,19 @@ class SimpleProvider<T> extends StatefulWidget {
 }
 
 class _SimpleProviderState<T> extends State<SimpleProvider<T>> {
-  T? value;
+  T? _value;
 
   @override
   Widget build(BuildContext context) {
     return _ProviderScope<T>(
-      value: value ??= widget.value ?? widget.create!(),
+      value: widget.value ?? (_value ??= widget.create!()),
       child: widget.child,
     );
   }
 
   @override
   void dispose() {
-    if (value != null) widget.onDispose?.call(value as T);
+    if (_value != null) widget.onDispose?.call(_value as T);
     super.dispose();
   }
 }

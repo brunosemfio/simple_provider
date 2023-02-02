@@ -10,12 +10,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Simple Provider',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(),
+    return SimpleProvider(
+      create: DarkMode.new,
+      child: Builder(builder: (context) {
+        return ValueListenableBuilder(
+          valueListenable: context.read<DarkMode>(),
+          builder: (context, state, child) {
+            return MaterialApp(
+              title: 'Simple Provider',
+              theme: state ? ThemeData.dark() : ThemeData(),
+              home: SimpleProvider(
+                create: () => Counter(),
+                child: const MyHomePage(),
+              ),
+            );
+          },
+        );
+      }),
     );
   }
 }
@@ -25,68 +36,87 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SimpleProvider.value(
-      value: 'increment',
-      child: SimpleProvider(
-        create: () => Counter(),
-        child: Builder(
-          builder: (context) {
-            return Scaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: const [
-                    AppTitle(),
-                    CounterView(),
-                    IncrementButton(),
-                  ],
-                ),
-              ),
-            );
-          },
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: const [
+            DarkModeButton(),
+            InitialCounterView(),
+            CurrentCounterView(),
+          ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: context.read<Counter>().increment,
+        child: const Text('+1'),
       ),
     );
   }
 }
 
-class AppTitle extends StatelessWidget {
-  const AppTitle({super.key});
+class DarkMode extends ValueNotifier<bool> {
+  DarkMode() : super(false);
 
-  @override
-  Widget build(BuildContext context) {
-    print('build: $runtimeType');
-    return const Text('title');
+  void toggle() {
+    value = !value;
   }
 }
 
-class IncrementButton extends StatelessWidget {
-  const IncrementButton({super.key});
+class DarkModeButton extends StatelessWidget {
+  const DarkModeButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    print('build: $runtimeType');
+    final darkMode = context.watch<DarkMode>();
     return TextButton(
-      onPressed: context.read<Counter>().increment,
-      child: Text(context.read<String>()),
+      onPressed: darkMode.toggle,
+      child: Text('dark mode: ${darkMode.value}'),
     );
   }
 }
 
 class Counter extends ValueNotifier<int> {
-  Counter() : super(0);
+  Counter() : super(0) {
+    print(runtimeType);
+  }
 
   void increment() {
     value += 1;
   }
 }
 
-class CounterView extends StatelessWidget {
-  const CounterView({super.key});
+class InitialCounterView extends StatelessWidget {
+  const InitialCounterView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    print('build: $runtimeType');
-    return Text('${context.watch<Counter>().value}');
+    print(runtimeType);
+    return SimpleProvider.value(
+      value: 'initial counter value: ${context.read<Counter>().value}',
+      child: const Console(),
+    );
+  }
+}
+
+class CurrentCounterView extends StatelessWidget {
+  const CurrentCounterView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    print(runtimeType);
+    return SimpleProvider.value(
+      value: 'current counter value: ${context.watch<Counter>().value}',
+      child: const Console(),
+    );
+  }
+}
+
+class Console extends StatelessWidget {
+  const Console({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(context.watch<String>());
   }
 }
