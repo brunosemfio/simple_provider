@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SimpleProvider(
-      create: DarkMode.new,
+      create: (_) => DarkMode.new,
       child: Builder(builder: (context) {
         return ValueListenableBuilder(
           valueListenable: context.read<DarkMode>(),
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
               title: 'Simple Provider',
               theme: state ? ThemeData.dark() : ThemeData(),
               home: SimpleProvider(
-                create: () => Counter(),
+                create: (_) => Counter(),
                 child: const MyHomePage(),
               ),
             );

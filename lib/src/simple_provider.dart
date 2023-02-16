@@ -17,7 +17,7 @@ class SimpleProvider<T> extends StatefulWidget {
 
   final T? value;
 
-  final T Function()? create;
+  final T Function(BuildContext context)? create;
 
   final void Function(T)? onDispose;
 
@@ -41,7 +41,7 @@ class _SimpleProviderState<T> extends State<SimpleProvider<T>> {
   @override
   Widget build(BuildContext context) {
     return _ProviderScope<T>(
-      value: widget.value ?? (_value ??= widget.create!()),
+      value: widget.value ?? (_value ??= widget.create!(context)),
       child: widget.child,
     );
   }
